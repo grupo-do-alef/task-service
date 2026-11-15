@@ -11,9 +11,9 @@ pipeline {
         SOURCE_DIR = '/workspace/task-service'
     }
 
-    stages {
-        stage('Validar acesso AWS') {
-            steps {
+    stage('Validar acesso AWS') {
+        when { expression { params.DEPLOY_TO_AWS } }
+        steps {
                 withCredentials([
                     string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'),
                     string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY'),
