@@ -21,10 +21,21 @@ public class ApplicationService {
 
     @Transactional
     public ApplicationEntity createApplication(ApplicationEntity application) {
+        if (applicationRepository.existsByTaskIdAndCandidateIdAndStatusNot(
+                application.getTaskId(), application.getCandidateId(), ApplicationStatus.CANCELED)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.CONFLICT, "Você já se candidatou para esta vaga.");
+        }
         if (application.getStatus() == null) {
             application.setStatus(ApplicationStatus.PENDING);
         }
+        if (application.getDateApplication() == null) application.setDateApplication(java.time.LocalDateTime.now());
         return applicationRepository.save(application);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApplicationEntity> getApplicationsByCandidateId(UUID candidateId) {
+        return applicationRepository.findByCandidateId(candidateId);
     }
 
     @Transactional(readOnly = true)

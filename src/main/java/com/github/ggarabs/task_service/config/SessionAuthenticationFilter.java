@@ -2,7 +2,6 @@ package com.github.ggarabs.task_service.config;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +22,7 @@ import java.util.Set;
 public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Set<String> ROLES = Set.of(
-            "CANDIDATE", "CONTRACTOR", "INTERMEDIARY", "ADMINISTRATOR");
+            "WORKER", "EMPLOYER", "AGENCY", "ADMIN");
 
     private final RestClient userService;
 
@@ -45,17 +44,24 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        String sessionId = findSessionId(request.getCookies());
-        if (sessionId != null) {
+        String authorization = request.getHeader("Authorization");
+        if (authorization != null && authorization.startsWith("Bearer ")) {
             try {
                 SessionUser user = userService.get()
                         .uri("/api/auth/me")
-                        .cookie("JSESSIONID", sessionId)
+                        .header("Authorization", authorization)
                         .retrieve()
                         .body(SessionUser.class);
                 if (user != null && user.id() != null && user.email() != null && ROLES.contains(user.role())) {
+                    String role = switch (user.role()) {
+                        case "WORKER" -> "CANDIDATE";
+                        case "EMPLOYER" -> "CONTRACTOR";
+                        case "AGENCY" -> "INTERMEDIARY";
+                        case "ADMIN" -> "ADMINISTRATOR";
+                        default -> user.role();
+                    };
                     var authentication = UsernamePasswordAuthenticationToken.authenticated(
-                            user.id(), null, Set.of(new SimpleGrantedAuthority("ROLE_" + user.role())));
+                            user.id(), null, Set.of(new SimpleGrantedAuthority("ROLE_" + role)));
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
@@ -65,16 +71,6 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String findSessionId(Cookie[] cookies) {
-        if (cookies == null)
-            return null;
-        for (Cookie cookie : cookies) {
-            if ("JSESSIONID".equals(cookie.getName()))
-                return cookie.getValue();
-        }
-        return null;
     }
 
     public record SessionUser(String id, String email, String role, String message) {

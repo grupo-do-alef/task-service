@@ -36,6 +36,13 @@ public class ApplicationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @GetMapping("/mine")
+    @PreAuthorize("hasAnyRole('CANDIDATE', 'INTERMEDIARY')")
+    public ResponseEntity<List<ApplicationEntity>> getMyApplications(Authentication authentication) {
+        UUID candidateId = UUID.fromString(authentication.getName());
+        return ResponseEntity.ok(applicationService.getApplicationsByCandidateId(candidateId));
+    }
+
     @GetMapping("/task/{taskId}")
     @PreAuthorize("hasAnyRole('CONTRACTOR', 'INTERMEDIARY', 'ADMINISTRATOR')")
     public ResponseEntity<List<ApplicationEntity>> getApplicationsByTaskId(
