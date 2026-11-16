@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,6 +19,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Set;
 
+@Component
 public class SessionAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Set<String> ROLES = Set.of(
@@ -26,14 +28,14 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
     private final RestClient userService;
 
     public SessionAuthenticationFilter(
-            RestClient.Builder restClientBuilder,
             @Value("${services.user.url:http://localhost:8080}") String userServiceUrl) {
-        this.userService = restClientBuilder.baseUrl(userServiceUrl).build();
+        this.userService = RestClient.create(userServiceUrl);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        if (!HttpMethod.GET.matches(request.getMethod())) return false;
+        if (!HttpMethod.GET.matches(request.getMethod()))
+            return false;
         String path = request.getRequestURI();
         return path.equals("/tasks") || path.startsWith("/tasks/") || path.startsWith("/duvidas/task/");
     }
@@ -66,12 +68,15 @@ public class SessionAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String findSessionId(Cookie[] cookies) {
-        if (cookies == null) return null;
+        if (cookies == null)
+            return null;
         for (Cookie cookie : cookies) {
-            if ("JSESSIONID".equals(cookie.getName())) return cookie.getValue();
+            if ("JSESSIONID".equals(cookie.getName()))
+                return cookie.getValue();
         }
         return null;
     }
 
-    public record SessionUser(String id, String email, String role, String message) { }
+    public record SessionUser(String id, String email, String role, String message) {
+    }
 }
