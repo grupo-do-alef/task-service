@@ -33,3 +33,6 @@ services:
       timeout: 5s
       retries: 12
       start_period: 10s
+
+volumes:
+  postgres-data:
