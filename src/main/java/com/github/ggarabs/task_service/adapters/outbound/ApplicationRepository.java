@@ -9,4 +9,6 @@ import java.util.UUID;
 @Repository
 public interface ApplicationRepository extends JpaRepository<ApplicationEntity, UUID> {
     List<ApplicationEntity> findByTaskId(UUID taskId);
+    boolean existsByTaskIdAndCandidateIdAndStatusNot(UUID taskId, UUID candidateId, ApplicationStatus status);
+    List<ApplicationEntity> findByCandidateId(UUID candidateId);
 }
