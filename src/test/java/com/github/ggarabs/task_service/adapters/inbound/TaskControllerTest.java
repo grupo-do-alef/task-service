@@ -3,17 +3,14 @@ package com.github.ggarabs.task_service.adapters.inbound;
 import com.github.ggarabs.task_service.adapters.outbound.TaskEntity;
 import com.github.ggarabs.task_service.adapters.outbound.TaskStatus;
 import com.github.ggarabs.task_service.application.TaskService;
-import com.github.ggarabs.task_service.config.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,7 +22,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
-@Import(SecurityConfig.class)
 class TaskControllerTest {
 
     @Autowired
@@ -33,7 +29,6 @@ class TaskControllerTest {
 
     @MockitoBean
     private TaskService taskService;
-
 
     @Test
     @DisplayName("GET /tasks deve ser público e retornar lista de vagas")
@@ -54,9 +49,9 @@ class TaskControllerTest {
     @DisplayName("POST /tasks deve negar criação para usuário não autenticado")
     void deveBloquearCriacaoNaoAutenticada() throws Exception {
         mockMvc.perform(post("/tasks")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\": \"Eletricista\"}"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\": \"Eletricista\"}"))
                 .andExpect(status().isForbidden());
     }
 
@@ -65,9 +60,9 @@ class TaskControllerTest {
     @DisplayName("POST /tasks deve retornar 403 quando usuário for CANDIDATE")
     void deveNegarCriacaoParaCandidato() throws Exception {
         mockMvc.perform(post("/tasks")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\": \"Eletricista\"}"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\": \"Eletricista\"}"))
                 .andExpect(status().isForbidden());
     }
 
@@ -85,9 +80,9 @@ class TaskControllerTest {
         when(taskService.createTask(any(TaskEntity.class))).thenReturn(saved);
 
         mockMvc.perform(post("/tasks")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\": \"Eletricista\"}"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"title\": \"Eletricista\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.title").value("Eletricista"))
                 .andExpect(jsonPath("$.status").value("OPEN"));
