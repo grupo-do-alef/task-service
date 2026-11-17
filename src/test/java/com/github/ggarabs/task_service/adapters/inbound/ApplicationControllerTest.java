@@ -5,17 +5,14 @@ import com.github.ggarabs.task_service.adapters.outbound.ApplicationStatus;
 import com.github.ggarabs.task_service.adapters.outbound.TaskEntity;
 import com.github.ggarabs.task_service.application.ApplicationService;
 import com.github.ggarabs.task_service.application.TaskService;
-import com.github.ggarabs.task_service.config.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestClient;
 
 import java.util.UUID;
 
@@ -28,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ApplicationController.class)
-@Import(SecurityConfig.class)
 class ApplicationControllerTest {
 
     @Autowired
@@ -40,7 +36,6 @@ class ApplicationControllerTest {
     @MockitoBean
     private TaskService taskService;
 
-    
     @Test
     @WithMockUser(username = "22222222-2222-2222-2222-222222222222", roles = "CANDIDATE")
     @DisplayName("POST /applications deve permitir candidatura para CANDIDATE")
@@ -54,9 +49,9 @@ class ApplicationControllerTest {
         when(applicationService.createApplication(any(ApplicationEntity.class))).thenReturn(saved);
 
         mockMvc.perform(post("/applications")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"taskId\": \"" + taskId + "\"}"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"taskId\": \"" + taskId + "\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("PENDING"));
     }
@@ -66,9 +61,9 @@ class ApplicationControllerTest {
     @DisplayName("POST /applications deve negar candidatura para CONTRACTOR")
     void deveNegarCandidaturaParaContratante() throws Exception {
         mockMvc.perform(post("/applications")
-                        .with(csrf())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"taskId\": \"" + UUID.randomUUID() + "\"}"))
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"taskId\": \"" + UUID.randomUUID() + "\"}"))
                 .andExpect(status().isForbidden());
     }
 

@@ -4,17 +4,14 @@ import com.github.ggarabs.task_service.adapters.outbound.DuvidaVagaEntity;
 import com.github.ggarabs.task_service.adapters.outbound.TaskEntity;
 import com.github.ggarabs.task_service.application.DuvidaVagaService;
 import com.github.ggarabs.task_service.application.TaskService;
-import com.github.ggarabs.task_service.config.SecurityConfig;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +24,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(DuvidaVagaController.class)
-@Import(SecurityConfig.class)
 class DuvidaVagaControllerTest {
 
     @Autowired
@@ -38,8 +34,6 @@ class DuvidaVagaControllerTest {
 
     @MockitoBean
     private TaskService taskService;
-
-    
 
     @Test
     @DisplayName("GET /duvidas/task/{taskId} deve ser público")
@@ -82,9 +76,9 @@ class DuvidaVagaControllerTest {
         when(duvidaService.responderDuvida(eq(duvidaId), any(String.class))).thenReturn(respondida);
 
         mockMvc.perform(patch("/duvidas/" + duvidaId + "/responder")
-                        .with(csrf())
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .content("Sim, precisa levar."))
+                .with(csrf())
+                .contentType(MediaType.TEXT_PLAIN)
+                .content("Sim, precisa levar."))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.answer").value("Sim, precisa levar."));
     }
