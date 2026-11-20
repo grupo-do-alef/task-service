@@ -38,10 +38,7 @@ pipeline {
             when { expression { params.DEPLOY_TO_AWS } }
             steps {
                 sh '''
-                    USER_SERVICE_URL="http://$(/workspace/jenkins/scripts/service-ip.sh user-service private):8080"
-                    test "$USER_SERVICE_URL" != 'http://None:8080'
-                    /workspace/jenkins/scripts/ensure-ec2.sh task-service > .ec2.env
-                    printf 'USER_SERVICE_URL=%s\n' "$USER_SERVICE_URL" >> .ec2.env
+                    printf 'PUBLIC_IP=44.195.250.109\nUSER_SERVICE_URL=http://172.31.89.66:8080\n' > .ec2.env
                 '''
             }
         }
@@ -50,7 +47,7 @@ pipeline {
             when { expression { params.DEPLOY_TO_AWS } }
             steps {
                 sshagent(credentials: ['ec2-deploy-key']) {
-                    sh '. ./.ec2.env && cd "$WORKSPACE/source" && /workspace/jenkins/scripts/deploy-compose.sh task-service "$PUBLIC_IP" "http://localhost:3000" "$USER_SERVICE_URL"'
+                    sh '. ./.ec2.env && cd "$WORKSPACE/source" && /workspace/jenkins/scripts/deploy-compose.sh task-service "$PUBLIC_IP" "http://23.20.190.24:3000" "$USER_SERVICE_URL"'
                 }
             }
         }
