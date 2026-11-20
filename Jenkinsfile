@@ -1,11 +1,14 @@
 pipeline {
     agent any
+    options { disableConcurrentBuilds() }
 
     parameters {
+        string(name: 'SOURCE_REF', defaultValue: 'main', description: 'Branch a validar e publicar.')
         booleanParam(name: 'DEPLOY_TO_AWS', defaultValue: false, description: 'Cria/inicia a EC2 e publica o task-service.')
     }
 
     environment {
+        SOURCE_REF = "${params.SOURCE_REF}"
         AWS_DEFAULT_REGION = 'us-east-1'
         AWS_PAGER = ''
         AWS_PROFILE = 'lab'
@@ -14,7 +17,7 @@ pipeline {
     stages {
         stage('Obter código da main') {
             steps {
-                sh 'rm -rf "$WORKSPACE/source" && git clone --depth 1 --branch main https://github.com/grupo-do-alef/task-service.git "$WORKSPACE/source"'
+                sh '/workspace/jenkins/scripts/checkout-main.sh https://github.com/grupo-do-alef/task-service.git "$WORKSPACE/source"'
             }
         }
 
