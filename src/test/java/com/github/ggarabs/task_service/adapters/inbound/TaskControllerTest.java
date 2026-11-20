@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TaskController.class)
+@org.springframework.context.annotation.Import(com.github.ggarabs.task_service.config.SecurityConfig.class)
 class TaskControllerTest {
 
     @Autowired
