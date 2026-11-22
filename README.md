@@ -14,7 +14,6 @@ O TrampoRápido conecta profissionais a oportunidades de trabalho. Sua implement
 
 Este serviço concentra as operações do processo de contratação. Possui um PostgreSQL próprio e referencia usuários por UUID, sem relacionamento JPA entre os bancos. A identidade para operações protegidas depende do user-service.
 
-A documentação considera os clones do workspace, substituindo análises anteriores feitas com ZIPs antigos. Na análise inicial, este repositório estava na branch main, no commit 00a3e7b, sem alterações locais. Esse registro é histórico; não confirma o estado atual do remoto.
 
 ## Tecnologias
 
@@ -91,7 +90,6 @@ O mapeamento esperado é:
 
 O UUID retornado se torna a identidade usada para vincular candidatos, autores e contratantes. O cliente HTTP possui timeouts de conexão e leitura de cinco segundos. A autenticação é stateless.
 
-**Bloqueio identificado:** o user-service atual não implementa GET /api/auth/me. Assim, operações protegidas não conseguem obter a identidade esperada por este filtro. Além disso, o domínio de usuários declara AGENCY, e não INTERMEDIARY. Os contratos precisam ser alinhados para o fluxo completo funcionar.
 
 ## Persistência
 
